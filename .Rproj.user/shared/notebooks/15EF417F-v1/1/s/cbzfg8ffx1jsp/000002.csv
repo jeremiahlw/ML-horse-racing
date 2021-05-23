@@ -1,0 +1,2 @@
+"0","a.st = a %>% filter(venue == 'ST') %>% select(-date)"
+"0","a.hv = a %>% filter(venue == 'HV') %>% select(-date)"

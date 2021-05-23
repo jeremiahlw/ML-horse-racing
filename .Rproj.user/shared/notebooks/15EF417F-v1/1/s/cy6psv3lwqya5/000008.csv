@@ -1,0 +1,14 @@
+"0","(a.hv.grouped = a.hv %>% 
+  group_by(config, distance, going, horse_ratings) %>% 
+  summarise(across(
+    .cols = contains('sec_'),
+    .fns =  list(mean = mean, median = median)
+  )) %>%
+  left_join(a.st %>% count(config, distance, going, horse_ratings, sort = T) %>% mutate(pct = n/sum(n))) %>% 
+  arrange(-pct) %>% 
+  relocate(n, pct))
+"
+"2","`summarise()` regrouping output by 'config', 'distance', 'going' (override with `.groups` argument)
+"
+"2","Joining, by = c(""config"", ""distance"", ""going"", ""horse_ratings"")
+"

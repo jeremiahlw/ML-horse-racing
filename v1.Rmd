@@ -1,0 +1,151 @@
+---
+title: "Horse EDA"
+author: "Jeremiah W"
+date: "May 2021"
+output: html_document
+---
+
+# Potential Feature Engineering
+
+1. number of consecutive/near-consecutive wins in the top 4, top X, etc.
+    * e.g. horse XYZ placed in the top 4 three times in a row
+2. for the same track & distance, standard deviation of winning times for horses that placed in the top 4
+3. measure 2 relative to the medan/median time of horses for that track & distance
+4. weight carried = actual - declared weight
+
+```{r include=FALSE}
+pacman::p_load(
+  data.table,
+  tidyverse,
+  lubridate,
+  dlookr,
+  DataExplorer,
+  inspectdf,
+  funModeling,
+  tictoc,
+  beepr,
+  ggthemes
+)
+
+#https://www.kaggle.com/gdaley/hkracing
+a = read_csv('races.csv') 
+b = read_csv('runs.csv')
+
+a %>% head
+b %>% head
+
+```
+
+```{r include=FALSE}
+#weekday col
+#a$wday = a$date %>% wday(label = T, abbr = T)
+
+#prize in USD (used exchange rate as of May 23, 2021)
+
+#a$prize.usd = a$prize/7.76413
+
+#unused cols, all NAs
+a$sec_time7 = NULL
+a$time7 = NULL
+# for now, not interested in the payout features -- theoretically shouldn't influence results of the race
+a = a %>% select(-contains('dividend'))
+```
+
+```{r}
+a = a %>% 
+  mutate_if(is_character, factor) %>% 
+  select(colnames(a) %>% sort) %>% 
+  select(
+    where(is.Date),
+    where(is.factor),
+    where(is.numeric)
+  ) %>% relocate(date)
+
+b = b %>% 
+  mutate_if(is_character, factor) %>% 
+  select(colnames(b) %>% sort) %>% 
+  select(
+    where(is.Date),
+    where(is.factor),
+    where(is.numeric)
+  )
+
+a %>% head
+b %>% head
+```
+```{r}
+a %>% filter(race_id %in% c(3)) %>% relocate(date, race_id)
+```
+
+
+```{r}
+b %>%
+  filter(
+    race_id == 3
+    ) %>% 
+  arrange(result, won) %>% 
+  relocate(race_id, result, won, contains('horse'))
+
+```
+
+# EDA
+
+## Factor vars
+
+```{r}
+a %>% inspect_cat()
+```
+
+```{r}
+ a %>% count(venue, config, distance, going, horse_ratings, sort = T) %>% mutate(pct = n/sum(n))
+```
+
+```{r}
+a %>% freq
+#group together 'going' levels less than 1% into an 'Other' category, or filter them out altogether
+#ditto for horse_ratings
+```
+### important filters
+```{r}
+(top9.horse.ratings = a %>% count(horse_ratings, sort = T) %>% mutate(pct = n/sum(n)) %>% filter(pct > 0.02))
+(top3.going = a %>% count(going, sort = T) %>% mutate(pct = n/sum(n)) %>% filter(pct > 0.02))
+
+a = a %>%
+  filter(
+    horse_ratings %in% top9.horse.ratings$horse_ratings,
+    going %in% top3.going$going
+  )
+
+a %>% freq
+```
+
+### filtering by venue
+```{r}
+a.st = a %>% filter(venue == 'ST') %>% select(-date)
+a.hv = a %>% filter(venue == 'HV') %>% select(-date)
+```
+
+```{r}
+(a.st.grouped = a.st %>% 
+  group_by(config, distance, going, horse_ratings) %>% 
+  summarise(across(
+    .cols = contains('sec_'),
+    .fns =  list(mean = mean, median = median)
+  )) %>%
+  left_join(a.st %>% count(config, distance, going, horse_ratings, sort = T) %>% mutate(pct = n/sum(n))) %>% 
+  arrange(-pct) %>% 
+  relocate(n, pct))
+```
+
+```{r}
+(a.hv.grouped = a.hv %>% 
+  group_by(config, distance, going, horse_ratings) %>% 
+  summarise(across(
+    .cols = contains('sec_'),
+    .fns =  list(mean = mean, median = median)
+  )) %>%
+  left_join(a.st %>% count(config, distance, going, horse_ratings, sort = T) %>% mutate(pct = n/sum(n))) %>% 
+  arrange(-pct) %>% 
+  relocate(n, pct))
+```
+

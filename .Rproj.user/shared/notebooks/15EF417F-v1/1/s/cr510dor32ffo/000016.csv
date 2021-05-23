@@ -1,0 +1,56 @@
+"0","pacman::p_load("
+"0","  data.table,"
+"0","  tidyverse,"
+"0","  lubridate,"
+"0","  dlookr,"
+"0","  DataExplorer,"
+"0","  inspectdf,"
+"0","  funModeling,"
+"0","  tictoc,"
+"0","  beepr,"
+"0","  ggthemes"
+"0",")"
+"0",""
+"0","#https://www.kaggle.com/gdaley/hkracing"
+"0","a = read_csv('races.csv') "
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m------------------------------------------------------------------------------------------------------------------------------------------------[39m
+cols(
+  .default = col_double(),
+  date = [34mcol_date(format = """")[39m,
+  venue = [31mcol_character()[39m,
+  config = [31mcol_character()[39m,
+  going = [31mcol_character()[39m,
+  horse_ratings = [31mcol_character()[39m,
+  sec_time7 = [33mcol_logical()[39m,
+  time7 = [33mcol_logical()[39m
+)
+[36mi[39m Use [38;5;251m[48;5;235m[38;5;251m[48;5;235m`spec()`[48;5;235m[38;5;251m[49m[39m for the full column specifications.
+
+"
+"0","b = read_csv('runs.csv')"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m------------------------------------------------------------------------------------------------------------------------------------------------[39m
+cols(
+  .default = col_double(),
+  horse_country = [31mcol_character()[39m,
+  horse_type = [31mcol_character()[39m,
+  horse_gear = [31mcol_character()[39m,
+  position_sec6 = [33mcol_logical()[39m,
+  behind_sec6 = [33mcol_logical()[39m,
+  time6 = [33mcol_logical()[39m
+)
+[36mi[39m Use [38;5;251m[48;5;235m[38;5;251m[48;5;235m`spec()`[48;5;235m[38;5;251m[49m[39m for the full column specifications.
+
+"
+"2","3888 parsing failures.
+ row           col           expected actual       file
+1134 position_sec6 1/0/T/F/TRUE/FALSE  3.0   'runs.csv'
+1134 behind_sec6   1/0/T/F/TRUE/FALSE  2.75  'runs.csv'
+1134 time6         1/0/T/F/TRUE/FALSE  24.21 'runs.csv'
+1135 position_sec6 1/0/T/F/TRUE/FALSE  4.0   'runs.csv'
+1135 behind_sec6   1/0/T/F/TRUE/FALSE  5.0   'runs.csv'
+.... ............. .................. ...... ..........
+See problems(...) for more details.
+"
+"0","a %>% head"
